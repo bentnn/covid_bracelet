@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	My account
+{% endblock %}
+
+{% block content %}
+	<h1>Мои персональные данные:</h1>
+	<div class="container mx-auto">
+		<p class="fw-bold">Имя пользователя: </p>
+		<p> {{ request.user.username }}</p>
+		<p class="fw-bold">Имя:</p>
+		<p>
+		{% if request.user.first_name %}
+			{{request.user.first_name }}
+		{% else %}
+			-
+		{% endif %}
+		</p>
+		<p class="fw-bold">Фамилия:</p>
+		<p>
+		{% if request.user.last_name %}
+			{{request.user.last_name }}
+		{% else %}
+			-
+		{% endif %}
+		</p">
+		<p class="fw-bold">Электронная почта:</p>
+		<p>
+		{% if request.user.email %}
+			{{request.user.email }}
+		{% else %}
+			-
+		{% endif %}
+		</p>
+		{% if request.user.is_superuser %}
+			<p>admin</p>
+		{% else %}
+			<p>not admin</p>
+		{% endif %}
+
+	</div>
+{% endblock %}

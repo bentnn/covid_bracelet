@@ -30,3 +30,8 @@ def loginView(request):
 def signoutView(request):
 	logout(request)
 	return redirect('login')
+
+def account(request):
+	if not request.user.is_authenticated:
+		return redirect('login')
+	return render(request, 'account.html')
