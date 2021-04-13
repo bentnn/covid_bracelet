@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#vz^dos(-ghhq+%rzf&*)%1b7@=dk=^g5q3^n%!b4yb93b97p('
+SECRET_KEY = 'e(4iou758n&84+3=2fmtq)po1-b-595j^et6=#-mj)n=*&@1jr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -77,13 +76,9 @@ WSGI_APPLICATION = 'bracelet.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bracelet',
-        'USER': 'postgres',
-        'PASSWORD':'1111',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -109,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
