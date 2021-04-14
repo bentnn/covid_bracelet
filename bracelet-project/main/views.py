@@ -15,7 +15,7 @@ def forbidden_page(request):
 def home(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
-		
+
 	return render(request, 'home.html')
 	
 def help(request):
@@ -75,3 +75,30 @@ def info_about_person(request, user_id):
 		if contact.first_user.username == user.username or contact.second_user.username == user.username:
 			our_contact_list.append(contact)
 	return render(request, 'about_person.html', {'user' : user, 'contacts' : our_contact_list, 'empty' : len(our_contact_list) == 0})
+
+def illnes(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
+	users = User.objects.all()
+	ill_users = []
+	for user in users:
+		if user.groups.filter(name='ill').exists():
+			ill_users.append(user)
+	passibly_ill = []
+	if len(ill_users) != 0:
+		contact_list =  Contact.objects.all()
+		for contact in contact_list:
+			if ill_users.count(contact.first_user):
+				if ill_users.count(contact.second_user) == 0 and passibly_ill.count(contact.second_user) == 0:
+					passibly_ill.append(contact.second_user)
+
+			if ill_users.count(contact.second_user):
+				if ill_users.count(contact.first_user) == 0 and passibly_ill.count(contact.first_user) == 0:
+					passibly_ill.append(contact.first_user)
+
+
+	return render(request, 'illnes.html', {'ill_users' : ill_users, 'empty_ill' : len(ill_users) == 0,
+											'passibly_ill' : passibly_ill, 'empty_passibly_ill' : len(passibly_ill) == 0})

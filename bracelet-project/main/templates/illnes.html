@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Illnes
+{% endblock %}
+
+{% block content %}
+	<h1>Заболевшие сотрудники</h1>
+	{% if empty_ill %}
+		<p>Заболевших сотрудников не найдено</p>
+	{% else %}
+
+		{% for user in ill_users %}
+		<a href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a>
+		{% endfor %}
+
+		<h2>Возможно заболевшие сотрудники</h2>
+		{% if empty_passibly_ill %}
+			<p>Возможно заболевших сотрудников не найдено</p>
+		{% else %}
+			{% for user in passibly_ill %}
+			<p><a href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
+			{% endfor %}
+			<br>
+			<p><a class="btn bg-danger text-light" href="mailto:
+				{% for user in passibly_ill %}
+					{{user.email}},
+				{% endfor %}
+				?subject=Ты заболел, брат&amp;body=sosi">Оповестить возможно заболевших</a></p>
+		{% endif %}
+	{% endif %}
+{% endblock %}
