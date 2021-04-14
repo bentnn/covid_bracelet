@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	My contacts
+{% endblock %}
+
+{% block content %}
+
+	<h1>
+		{% if request.user.is_staff %}
+			Контакты сотрудников
+		{% else %}
+			Мои контакты
+		{% endif %}
+	</h1>
+
+	{% if not empty %}
+		<div class="container">
+			{% for contact in contacts %}
+				<h4 class="fw=bold">{{contact.first_user.last_name}} - {{contact.second_user.last_name}}</h4>
+				<p>{{contact.date}}</p>
+				<br>
+			{% endfor %}
+		</div>
+	{% else %}
+		<p>
+		{% if request.user.is_staff %}
+			Контактов сотрудников не обнаружено
+		{% else %}
+			Ваших контактов не обнаружено
+		{% endif %}
+		</p>
+	{% endif %}
+
+
+{% endblock %}

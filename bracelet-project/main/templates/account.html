@@ -33,10 +33,17 @@
 			-
 		{% endif %}
 		</p>
+
+		<p class="fw-bold">Статус:</p>
+
 		{% if request.user.is_superuser %}
-			<p>admin</p>
+			<p>Администратор</p>
 		{% else %}
-			<p>not admin</p>
+			{% if request.user.is_staff %}
+				<p>Наблюдатель</p>
+			{% else %}
+				<p>Сотрудник</p>
+			{% endif %}
 		{% endif %}
 
 	</div>
