@@ -9,14 +9,19 @@ from .models import Contact
 def can_i_let_him_in(request):
 	return (request.user.is_authenticated and not request.user.is_superuser)
 
+def forbidden_page(request):
+	return render(request, 'forbidden.html')
+
 def home(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
+		
 	return render(request, 'home.html')
 	
 def help(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
+
 	return render(request, 'help.html')
 
 def loginView(request):
@@ -40,11 +45,13 @@ def signoutView(request):
 def account(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
+
 	return render(request, 'account.html')
 
 def contacts(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
+
 	user = request.user
 	contact_list =  Contact.objects.all()
 	if user.is_staff:
@@ -56,8 +63,11 @@ def contacts(request):
 	return render(request, 'contacts.html', {'contacts' : our_contact_list, 'empty' : len(our_contact_list) == 0})
 
 def info_about_person(request, user_id):
-	if not can_i_let_him_in(request) or not request.user.is_staff:
+	if not can_i_let_him_in(request):
 		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
 	user = User.objects.get(id=user_id)
 	contact_list =  Contact.objects.all()
 	our_contact_list = []
