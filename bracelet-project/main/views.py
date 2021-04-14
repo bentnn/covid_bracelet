@@ -54,3 +54,14 @@ def contacts(request):
 		if contact.first_user.username == user.username or contact.second_user.username == user.username:
 			our_contact_list.append(contact)
 	return render(request, 'contacts.html', {'contacts' : our_contact_list, 'empty' : len(our_contact_list) == 0})
+
+def info_about_person(request, user_id):
+	if not can_i_let_him_in(request) or not request.user.is_staff:
+		return redirect('login')
+	user = User.objects.get(id=user_id)
+	contact_list =  Contact.objects.all()
+	our_contact_list = []
+	for contact in contact_list:
+		if contact.first_user.username == user.username or contact.second_user.username == user.username:
+			our_contact_list.append(contact)
+	return render(request, 'about_person.html', {'user' : user, 'contacts' : our_contact_list, 'empty' : len(our_contact_list) == 0})

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	{% if user %}
+		{{ user.username }}
+	{% else %}
+		Empty user
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+
+	{% if user %}
+
+		<h1>Информация о пользователе {{ user.username }}</h1>
+
+		<p class="fw-bold">Имя:</p>
+		<p>
+		{% if user.first_name %}
+			{{user.first_name }}
+		{% else %}
+			-
+		{% endif %}
+		</p>
+		<p class="fw-bold">Фамилия:</p>
+		<p>
+		{% if user.last_name %}
+			{{ user.last_name }}
+		{% else %}
+			-
+		{% endif %}
+		</p">
+		<p class="fw-bold">Электронная почта:</p>
+		<p>
+		{% if user.email %}
+			{{ user.email }}
+		{% else %}
+			-
+		{% endif %}
+		</p>
+
+		<h3 class="fw-bold">Контакты пользователя:</h3>
+
+		{% if not empty %}
+			<div class="container">
+				{% for contact in contacts %}
+					<h4 class="fw=bold">
+						{% if user.id != contact.first_user.id %}
+						<a href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a>
+						{% else %}
+						{{contact.first_user.last_name}}  {{contact.first_user.first_name}}
+						{% endif %}
+						 - 
+						{% if user.id != contact.second_user.id %}
+						<a href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a>
+						{% else %}
+						{{contact.second_user.last_name}} {{contact.second_user.first_name}}
+						{% endif %}
+					</h4>
+					<p>{{contact.date}}</p>
+					<br>
+				{% endfor %}
+			</div>
+		{% else %}
+			<p>Контактов сотрудника не обнаружено</p>
+	{% endif %}
+
+	{% else %}
+		Пользователь не найден
+	{% endif %}
+
+{% endblock %}

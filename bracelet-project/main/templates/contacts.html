@@ -17,7 +17,14 @@
 	{% if not empty %}
 		<div class="container">
 			{% for contact in contacts %}
-				<h4 class="fw=bold">{{contact.first_user.last_name}} - {{contact.second_user.last_name}}</h4>
+
+				{% if request.user.is_staff %}
+
+					<h4 class="fw=bold"><a href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a> - <a href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a></h4>
+				{% else %}
+					<h4 class="fw=bold">{{contact.first_user.last_name}} {{contact.first_user.first_name}} - {{contact.second_user.last_name}} {{contact.second_user.first_name}}</h4>
+				{% endif %}
+
 				<p>{{contact.date}}</p>
 				<br>
 			{% endfor %}
