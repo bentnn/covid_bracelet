@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
-from .models import Contact
+from .models import Contact, Post
 
 # Create your views here.
 
@@ -16,7 +16,8 @@ def home(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
 
-	return render(request, 'home.html')
+	posts = Post.objects.all()
+	return render(request, 'home.html', {'posts' : posts})
 	
 def help(request):
 	if not can_i_let_him_in(request):

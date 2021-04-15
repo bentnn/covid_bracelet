@@ -6,6 +6,11 @@
 
 {% block content %}
 
-<h1>Home</h1>
+	{% for post in posts %}
+		<h2>{{ post.title }}</h2>
+		<img class="card-img" src="{{ post.image.url }}" style="max-width: 900px; max-height: 500px">
+		<p>{{ post.text }}</p>
+		<p class="fw-bold">{{ post.date }}</p>
+	{% endfor %}
 
 {% endblock %}
