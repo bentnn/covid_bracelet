@@ -5,48 +5,52 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Мои персональные данные:</h1>
-	<div class="container mx-auto">
-		<p class="fw-bold">Имя пользователя: </p>
-		<p> {{ request.user.username }}</p>
-		<p class="fw-bold">Имя:</p>
-		<p>
-		{% if request.user.first_name %}
-			{{request.user.first_name }}
-		{% else %}
-			-
-		{% endif %}
-		</p>
-		<p class="fw-bold">Фамилия:</p>
-		<p>
-		{% if request.user.last_name %}
-			{{request.user.last_name }}
-		{% else %}
-			-
-		{% endif %}
-		</p">
-		<p class="fw-bold">Электронная почта:</p>
-		<p>
-		{% if request.user.email %}
-			{{request.user.email }}
-		{% else %}
-			-
-		{% endif %}
-		</p>
-
-		<p class="fw-bold">Статус:</p>
-
-		{% if request.user.is_superuser %}
-			<p>Администратор</p>
-		{% else %}
-			{% if request.user.is_staff %}
-				<p>Наблюдатель</p>
+	<div class="container">
+		<h1 class="text_title">Мои персональные данные</h1>
+		<br>
+		<div>
+			<p class="fw-bold regular_text">Имя пользователя: </p>
+			<p class="regular_text"> {{ request.user.username }}</p>
+			<p class="fw-bold regular_text">Имя:</p>
+			<p class="regular_text">
+			{% if request.user.first_name %}
+				{{request.user.first_name }}
 			{% else %}
-				<p>Сотрудник</p>
+				-
 			{% endif %}
-		{% endif %}
+			</p>
+			<p class="fw-bold regular_text">Фамилия:</p>
+			<p class="regular_text">
+			{% if request.user.last_name %}
+				{{request.user.last_name }}
+			{% else %}
+				-
+			{% endif %}
+			</p">
+			<p class="fw-bold regular_text">Электронная почта:</p>
+			<p class="regular_text">
+			{% if request.user.email %}
+				{{request.user.email }}
+			{% else %}
+				-
+			{% endif %}
+			</p>
 
-		<a href="{% url 'change_password' %}">Смена пароля</a>
+			<p class="fw-bold regular_text">Статус:</p>
 
+			{% if request.user.is_superuser %}
+				<p class="regular_text">Администратор</p>
+			{% else %}
+				{% if request.user.is_staff %}
+					<p class="regular_text">Наблюдатель</p>
+				{% else %}
+					<p class="regular_text">Сотрудник</p>
+				{% endif %}
+			{% endif %}
+			<br>
+			<a class="btn btn-dark regular_text" href="{% url 'change_password' %}">Сменить пароль</a>
+
+		</div>
+		<br>
 	</div>
 {% endblock %}

@@ -5,12 +5,20 @@
 {% endblock %}
 
 {% block content %}
-
+	<br>
 	{% for post in posts %}
-		<h2>{{ post.title }}</h2>
-		<img class="card-img" src="{{ post.image.url }}" style="max-width: 900px; max-height: 500px">
-		<p>{{ post.text }}</p>
-		<p class="fw-bold">{{ post.date }}</p>
+		<div class="text-center">
+			<div class="container">
+				<h2 class="text_title">{{ post.title }}</h2>
+				<br>
+				{% if post.image %}
+				<img class="card-img" src="{{ post.image.url }}" style="max-width: 800px; max-height: 500px">
+				{% endif %}
+				<p class="regular_text">{{ post.text }}</p>
+				<p class="date_text">{{ post.date }}</p>
+			</div>
+			<br>
+		</div>
 	{% endfor %}
 
 {% endblock %}

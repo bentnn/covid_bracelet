@@ -11,53 +11,53 @@
 {% block content %}
 
 	{% if user %}
-
-		<h1>Информация о пользователе {{ user.username }}</h1>
-
-		<p class="fw-bold">Имя:</p>
-		<p>
+<div class="container">
+		<h1 class="text_title">Информация о пользователе {{ user.username }}</h1>
+		<br>
+		<p class="fw-bold regular_text">Имя:</p>
+		<p class="regular_text">
 		{% if user.first_name %}
 			{{user.first_name }}
 		{% else %}
 			-
 		{% endif %}
 		</p>
-		<p class="fw-bold">Фамилия:</p>
-		<p>
+		<p class="fw-bold regular_text">Фамилия:</p>
+		<p class="regular_text">
 		{% if user.last_name %}
 			{{ user.last_name }}
 		{% else %}
 			-
 		{% endif %}
-		</p">
-		<p class="fw-bold">Электронная почта:</p>
-		<p>
+		</p>
+		<p class="fw-bold regular_text">Электронная почта:</p>
+		<p class="regular_text">
 		{% if user.email %}
 			{{ user.email }}
 		{% else %}
 			-
 		{% endif %}
 		</p>
-
-		<h3 class="fw-bold">Контакты пользователя:</h3>
-
+		<br><br>
+		<h2 class="text_title">Контакты пользователя</h2>
+		<br>
 		{% if not empty %}
 			<div class="container">
 				{% for contact in contacts %}
-					<h4 class="fw=bold">
+					<h4 class="fw-bold regular_text">
 						{% if user.id != contact.first_user.id %}
-						<a href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a>
+						<a class="link-dark" href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a>
 						{% else %}
 						{{contact.first_user.last_name}}  {{contact.first_user.first_name}}
 						{% endif %}
 						 - 
 						{% if user.id != contact.second_user.id %}
-						<a href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a>
+						<a class="link-dark" href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a>
 						{% else %}
 						{{contact.second_user.last_name}} {{contact.second_user.first_name}}
 						{% endif %}
 					</h4>
-					<p>{{contact.date}}</p>
+					<p class="regular_text">{{contact.date}}</p>
 					<br>
 				{% endfor %}
 			</div>
@@ -68,5 +68,5 @@
 	{% else %}
 		Пользователь не найден
 	{% endif %}
-
+</div>
 {% endblock %}

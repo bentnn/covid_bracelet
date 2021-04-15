@@ -5,28 +5,32 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Заболевшие сотрудники</h1>
+<div class="container">
+	<h1 class="text_title">Заболевшие сотрудники</h1>
+	<br>
 	{% if empty_ill %}
-		<p>Заболевших сотрудников не найдено</p>
+		<p class="regular_text">Заболевших сотрудников не найдено</p>
 	{% else %}
 
 		{% for user in ill_users %}
-		<a href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a>
+		<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
 		{% endfor %}
-
-		<h2>Возможно заболевшие сотрудники</h2>
+		<br><br>
+		<h2 class="text_title">Возможно заболевшие сотрудники</h2>
+		<br>
 		{% if empty_passibly_ill %}
-			<p>Возможно заболевших сотрудников не найдено</p>
+			<p class="regular_text">Возможно заболевших сотрудников не найдено</p>
 		{% else %}
 			{% for user in passibly_ill %}
-			<p><a href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
+			<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
 			{% endfor %}
 			<br>
-			<p><a class="btn bg-danger text-light" href="mailto:
+			<p><a class="btn bg-danger text-light regular_text" href="mailto:
 				{% for user in passibly_ill %}
 					{{user.email}},
 				{% endfor %}
-				?subject=Ты заболел, брат&amp;body=sosi">Оповестить возможно заболевших</a></p>
+				?subject=Информация с антиковидного браслета&amp;body=Здравствуйте. Вы имели контакт с человеком, у которого был обнаружен коронавирус. Просим вас избегать людных мест и, по возможности, сдать тест на наличие вируса.">Оповестить возможно заболевших</a></p>
 		{% endif %}
 	{% endif %}
+</div>
 {% endblock %}

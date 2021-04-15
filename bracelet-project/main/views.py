@@ -20,11 +20,6 @@ def home(request):
 	posts = Post.objects.all()
 	return render(request, 'home.html', {'posts' : posts})
 	
-def help(request):
-	if not can_i_let_him_in(request):
-		return redirect('login')
-
-	return render(request, 'help.html')
 
 def loginView(request):
 	if (request.method) == 'POST':
