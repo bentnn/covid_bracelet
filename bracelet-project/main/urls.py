@@ -10,4 +10,6 @@ urlpatterns = [
 	path('contacts', views.contacts, name='contacts'),
 	path('contacts/account/<int:user_id>', views.info_about_person, name='info_about_person'),
 	path('illnes', views.illnes, name='illnes'),
+	path('account/change_password', views.change_password, name='change_password'),
+	path('account/change_password/successfully', views.successfull_password_change, name='successfull_password_change'),
 ]

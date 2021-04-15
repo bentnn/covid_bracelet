@@ -5,10 +5,5 @@
 {% endblock %}
 
 {% block content %}
-	{% for post in posts %}
-		<h2>{{ post.title }}</h2>
-		<img class="card-img-top" src="{{ post.image.url }}", alt={{post.name}}>
-		<p>{{ post.text }}</p>
-		<p class="fw-bold">{{ post.date }}</p>
-	{% endfor %}
+	<p>Данный сайт предназначен для пользователей антиковидного браслета</p>
 {% endblock %}

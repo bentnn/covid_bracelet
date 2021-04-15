@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import Group, User
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
+from django.contrib import messages
 from .models import Contact, Post
 
 # Create your views here.
@@ -42,6 +43,29 @@ def loginView(request):
 def signoutView(request):
 	logout(request)
 	return redirect('login')
+
+def change_password(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+
+	if request.method == 'POST':
+		form = PasswordChangeForm(request.user, request.POST)
+		if form.is_valid():
+			user = form.save()
+			update_session_auth_hash(request, user)  # Important!
+			messages.success(request, 'Your password was successfully updated!')
+			return redirect('successfull_password_change')
+		else:
+			messages.error(request, 'Please correct the error below.')
+	else:
+		form = PasswordChangeForm(request.user)
+	return render(request, 'change_password.html', {'form': form})
+
+def successfull_password_change(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+
+	return render(request, 'successfull_password_change.html')
 
 def account(request):
 	if not can_i_let_him_in(request):
