@@ -6,6 +6,11 @@
 
 {% block content %}
 	<br>
+
+	{% if ill %}
+		<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, сейчас вы болеете коронавирусом. Просим вас не приходить на работу некоторое время, а перед возвращением сдать пцр-тест</h1>
+	{% endif %}
+
 	{% for post in posts %}
 		<div class="text-center">
 			<div class="container">

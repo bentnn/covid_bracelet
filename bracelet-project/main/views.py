@@ -18,7 +18,7 @@ def home(request):
 		return redirect('login')
 
 	posts = Post.objects.all()
-	return render(request, 'home.html', {'posts' : posts})
+	return render(request, 'home.html', {'posts' : posts, 'ill' : request.user.groups.filter(name='ill').exists()})
 	
 
 def loginView(request):
@@ -66,7 +66,7 @@ def account(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
 
-	return render(request, 'account.html')
+	return render(request, 'account.html', {'ill' : request.user.groups.filter(name='ill').exists()})
 
 def contacts(request):
 	if not can_i_let_him_in(request):
@@ -89,12 +89,14 @@ def info_about_person(request, user_id):
 		return forbidden_page(request)
 
 	user = User.objects.get(id=user_id)
+
 	contact_list =  Contact.objects.all()
 	our_contact_list = []
 	for contact in contact_list:
 		if contact.first_user.username == user.username or contact.second_user.username == user.username:
 			our_contact_list.append(contact)
-	return render(request, 'about_person.html', {'user' : user, 'contacts' : our_contact_list, 'empty' : len(our_contact_list) == 0})
+	return render(request, 'about_person.html', {'user' : user, 'contacts' : our_contact_list,
+		'empty' : len(our_contact_list) == 0, 'ill' : user.groups.filter(name='ill').exists()})
 
 def illnes(request):
 	if not can_i_let_him_in(request):
@@ -122,3 +124,33 @@ def illnes(request):
 
 	return render(request, 'illnes.html', {'ill_users' : ill_users, 'empty_ill' : len(ill_users) == 0,
 											'passibly_ill' : passibly_ill, 'empty_passibly_ill' : len(passibly_ill) == 0})
+
+
+def workersView(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
+	users = User.objects.all()
+	workers = []
+	for user in users:
+		if not user.is_staff and not user.is_superuser:
+			workers.append(user)
+	
+	return render(request, 'workers.html', {'workers' : workers, 'empty' : len(workers) == 0})
+
+def change_the_health_status(request, user_id):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
+	group = Group.objects.get(name='ill')
+	user = User.objects.get(id=user_id)
+	if user.groups.filter(name='ill').exists():
+		user.groups.remove(group)
+	else:
+		user.groups.add(group)
+
+	return redirect('info_about_person', user_id)

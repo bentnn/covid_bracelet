@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Workers
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+	<h1 class="text_title">Сотрудники</h1>
+	<br>
+
+	{% if empty %}
+		<h3>Сотрудники в базе данных отсутсвуют</h3>
+	{% else %}
+		{% for user in workers %}
+				<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
+		{% endfor %}
+
+	{% endif %}
+
+
+</div>
+
+{% endblock %}

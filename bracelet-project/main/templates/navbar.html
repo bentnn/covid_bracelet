@@ -15,7 +15,9 @@
             {% endif %}
         </a>
         {% if request.user.is_staff %}
+              <a class="nav-link navbar_text" href="{% url 'workers' %}">Сотрудники</a>
               <a class="nav-link navbar_text" href="{% url 'illnes' %}">Заболевания</a>
+              <a class="nav-link navbar_text" href="{% url 'illnes' %}"></a>
         {% endif %}
         <a class="nav-link navbar_text" href="{% url 'signout' %}">Выйти</a>
       </div>

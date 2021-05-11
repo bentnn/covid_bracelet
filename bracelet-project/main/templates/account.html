@@ -45,6 +45,13 @@
 					<p class="regular_text">Наблюдатель</p>
 				{% else %}
 					<p class="regular_text">Сотрудник</p>
+
+					<p class="fw-bold regular_text">Состояние здоровья:</p>
+					{% if ill %}
+						<p class="text-danger regular_text">Болен</p>
+					{% else %}
+						<p class="text-success regular_text">Здоров</p>
+					{% endif %}
 				{% endif %}
 			{% endif %}
 			<br>

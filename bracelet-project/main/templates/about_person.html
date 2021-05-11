@@ -38,6 +38,14 @@
 			-
 		{% endif %}
 		</p>
+		<p class="fw-bold regular_text">Состояние здоровья:</p>
+		{% if ill %}
+			<p class="text-danger regular_text">Болен</p>
+		{% else %}
+			<p class="text-success regular_text">Здоров</p>
+		{% endif %}
+		<p><a class="btn btn-dark regular_text" href="{% url 'change_status' user.id %}">Изменить статус здоровья</a></p>
+
 		<br><br>
 		<h2 class="text_title">Контакты пользователя</h2>
 		<br>
