@@ -18,7 +18,40 @@ def home(request):
 		return redirect('login')
 
 	posts = Post.objects.all()
-	return render(request, 'home.html', {'posts' : posts, 'ill' : request.user.groups.filter(name='ill').exists()})
+	if request.user.is_staff:
+		render(request, 'home.html', {'posts' : posts})
+
+	our_user = request.user
+	contact_list =  Contact.objects.all()
+	our_contact_list = []
+	for contact in contact_list:
+		if contact.first_user.username == our_user.username or contact.second_user.username == our_user.username:
+			our_contact_list.append(contact)
+	users = User.objects.all()
+	all = 0
+	ill_users = []
+	for user in users:
+		if user.groups.filter(name='ill').exists():
+			ill_users.append(user)
+		if not user.is_staff and not user.is_superuser:
+			all += 1
+
+	probably_ill = False
+	for contact in our_contact_list:
+		if contact.first_user != our_user and ill_users.count(contact.first_user):
+			probably_ill = True
+			break
+		elif contact.second_user != our_user and ill_users.count(contact.second_user):
+			probably_ill = True
+			break
+	contacts_with = []
+	for contact in our_contact_list[0:3]:
+		if contact.first_user == our_user:
+			contacts_with.append(contact.second_user)
+		else:
+			contacts_with.append(contact.first_user)
+	return render(request, 'home.html', {'posts' : posts, 'ill' : request.user.groups.filter(name='ill').exists(),
+					'probably_ill' : probably_ill, 'contacts_with' : contacts_with, 'all' : all, 'ill_size' : len(ill_users)})
 	
 
 def loginView(request):

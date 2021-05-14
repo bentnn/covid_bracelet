@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
 {% block title %}
-	My contacts
+		{% if request.user.is_staff %}
+			Contacts
+		{% else %}
+			My contacts
+		{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -14,21 +18,70 @@
 			Мои контакты
 		{% endif %}
 	</h1>
+
+<!-- 	<div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+  <label class="form-check-label" for="flexSwitchCheckDefault">Default switch checkbox input</label>
+</div> -->
 	<br>
 	{% if not empty %}
 		<div>
+			<table class="table">
+			  <thead>
+			    <tr>
+			      <th scope="col">Дата контакта</th>
+			      <th scope="col">1 сотрудник</th>
+			      <th scope="col">2 сотрудник</th>
+			    </tr>
+			  </thead>
+			  <tbody>
 			{% for contact in contacts %}
-
 				{% if request.user.is_staff %}
+				<tr>
+					<th>{{contact.date}}</th>
+					<th><a class="link-dark" href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a>
+						{% if contact.first_user.groups.all.0.name == 'ill' %}
+							<span class="material-icons text-danger">coronavirus</span>
+						{% endif %}
+					</th>
+					<th><a class="link-dark" href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a>
+						{% if contact.second_user.groups.all.0.name == 'ill' %}
+							<span class="material-icons text-danger">coronavirus</span>
+					{% endif %}
+					</th>
+				</tr>
+<!--     <tr>
+      <th scope="row">1</th>
+      <td>Mark</td>
+      <td>Otto</td>
+      <td>@mdo</td>
+    </tr>
+    <tr>
+      <th scope="row">2</th>
+      <td>Jacob</td>
+      <td>Thornton</td>
+      <td>@fat</td>
+    </tr>
+    <tr>
+      <th scope="row">3</th>
+      <td colspan="2">Larry the Bird</td>
+      <td>@twitter</td>
+    </tr> -->
 
-					<h4 class="fw-bold regular_text"><a class="link-dark" href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a> - <a class="link-dark" href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a></h4>
+<!-- 					<h4 class="fw-bold regular_text"><a class="link-dark" href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a> - <a class="link-dark" href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a></h4> -->
 				{% else %}
-					<h4 class="fw-bold regular_text">{{contact.first_user.last_name}} {{contact.first_user.first_name}} - {{contact.second_user.last_name}} {{contact.second_user.first_name}}</h4>
+				<tr>
+					<th>{{contact.date}}</th>
+					<th>{{contact.first_user.last_name}} {{contact.first_user.first_name}}</th>
+					<th>{{contact.second_user.last_name}} {{contact.second_user.first_name}}</th>
+				</tr>
+<!-- 					<h4 class="fw-bold regular_text">{{contact.first_user.last_name}} {{contact.first_user.first_name}} - {{contact.second_user.last_name}} {{contact.second_user.first_name}}</h4> -->
 				{% endif %}
 
-				<p class="regular_text">{{contact.date}}</p>
-				<br>
-			{% endfor %}
+<!-- 				<p class="regular_text">{{contact.date}}</p>
+ -->			{% endfor %}
+			  </tbody>
+				</table>
 		</div>
 	{% else %}
 		<p>

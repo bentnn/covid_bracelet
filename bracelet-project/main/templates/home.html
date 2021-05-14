@@ -6,9 +6,42 @@
 
 {% block content %}
 	<br>
-
-	{% if ill %}
-		<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, сейчас вы болеете коронавирусом. Просим вас не приходить на работу некоторое время, а перед возвращением сдать пцр-тест</h1>
+	{% if not request.user.is_staff %}
+		{% if ill %}
+			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, сейчас вы болеете коронавирусом. Просим вас не приходить на работу некоторое время, а перед возвращением сдать пцр-тест</h1>
+		{% elif probably_ill %}
+			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, вы имели контакт с человеком, на данный момент болеющим коронавирусом. Просим вам без одобрения начальства воздержаться от прихода на работу</h1>
+		{% endif %}
+<!-- 			<div class="row row-cols-1 row-cols-sm-2">
+				<div class="container album">
+					<div class="col">
+						<p class="text_title">Ваши последние контакты были с данными сотрудниками:</p>
+						{% for user in contacts_with %}
+							<p class="regular_text">{{ user.last_name }}</p>
+						{% endfor %}
+					</div>
+					<div class="col">
+						<p class="text_title">Статистика по предприятью</p>
+						<p class="regular_text">Всего сотрудников: {{ all }}</p>
+						<p class="regular_text">Болеющих сотрудников сотрудников: {{ ill_size }}</p>
+					</div>
+				</div>
+			</div> -->
+			<div class="container">
+			  <div class="row row-cols-1 row-cols-sm-2">
+			    <div class="col text-center">
+			      		<h4 class="text_title">Ваши последние контакты были с данными сотрудниками:</h4>
+						{% for user in contacts_with %}
+							<p class="regular_text">{{ user.last_name }}</p>
+						{% endfor %}
+			    </div>
+			    <div class="col text-center">
+			      		<h4 class="text_title">Статистика по предприятью:</h4>
+						<p class="regular_text">Всего сотрудников: {{ all }}</p>
+						<p class="regular_text">Болеющих сотрудников сотрудников: {{ ill_size }}</p>
+			    </div>
+			  </div>
+			</div>
 	{% endif %}
 
 	{% for post in posts %}
@@ -17,7 +50,7 @@
 				<h2 class="text_title">{{ post.title }}</h2>
 				<br>
 				{% if post.image %}
-				<img class="card-img" src="{{ post.image.url }}" style="max-width: 800px; max-height: 500px">
+				<img class="card-img img-fluid" src="{{ post.image.url }}" style="max-width: 800px; max-height: 500px border">
 				{% endif %}
 				<p class="regular_text">{{ post.text }}</p>
 				<p class="date_text">{{ post.date }}</p>
