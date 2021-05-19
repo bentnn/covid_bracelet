@@ -5,6 +5,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib import messages
 from .models import Contact, Post
 
+
 # Create your views here.
 
 def can_i_let_him_in(request):
@@ -108,12 +109,26 @@ def contacts(request):
 	user = request.user
 	contact_list =  Contact.objects.all()
 	if user.is_staff:
-		return render(request, 'contacts.html', {'contacts' : contact_list, 'empty' : len(contact_list) == 0})
+		return render(request, 'contacts.html', {'contacts' : contact_list, 'empty' : len(contact_list) == 0, 'to_ill' : True})
 	our_contact_list = []
 	for contact in contact_list:
 		if contact.first_user.username == user.username or contact.second_user.username == user.username:
 			our_contact_list.append(contact)
 	return render(request, 'contacts.html', {'contacts' : our_contact_list, 'empty' : len(our_contact_list) == 0})
+
+def only_ill_contacts(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
+	user = request.user
+	contact_list =  Contact.objects.all()
+	only_ill_contacts = []
+	for contact in contact_list:
+		if contact.first_user.groups.filter(name='ill').exists() or contact.second_user.groups.filter(name='ill').exists():
+			only_ill_contacts.append(contact)
+	return render(request, 'contacts.html', {'contacts' : only_ill_contacts, 'empty' : len(only_ill_contacts) == 0, 'to_ill' : False})
 
 def info_about_person(request, user_id):
 	if not can_i_let_him_in(request):
@@ -187,3 +202,4 @@ def change_the_health_status(request, user_id):
 		user.groups.add(group)
 
 	return redirect('info_about_person', user_id)
+
