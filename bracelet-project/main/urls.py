@@ -14,4 +14,5 @@ urlpatterns = [
 	path('account/change_password/successfully', views.successfull_password_change, name='successfull_password_change'),
 	path('workers', views.workersView, name='workers'),
 	path('contacts/account/<int:user_id>/change_status', views.change_the_health_status, name='change_status'),
+	path('take_contacts', views.take_contacts, name='take_contacts'),
 ]

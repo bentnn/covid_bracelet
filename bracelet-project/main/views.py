@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib import messages
 from .models import Contact, Post
+from django.core.files.storage import FileSystemStorage
 
 
 # Create your views here.
@@ -203,3 +204,13 @@ def change_the_health_status(request, user_id):
 
 	return redirect('info_about_person', user_id)
 
+def take_contacts(request):
+	if request.method == 'POST' and request.FILES['myfile']:
+		myfile = request.FILES['myfile']
+		fs = FileSystemStorage()
+		filename = fs.save(myfile.name, myfile)
+		uploaded_file_url = fs.url(filename)
+		return render(request, 'take_file.html', {
+			'uploaded_file_url': uploaded_file_url
+		})
+	return render(request, 'take_file.html')
