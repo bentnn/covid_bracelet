@@ -6,11 +6,12 @@
 
 {% block content %}
 	<br>
+
 	{% if not request.user.is_staff %}
 		{% if ill %}
-			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, сейчас вы болеете коронавирусом. Просим вас не приходить на работу некоторое время, а перед возвращением сдать пцр-тест</h1>
+			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, сейчас вы болеете коронавирусом. Просим вас не приходить на работу некоторое время, а перед возвращением сдать пцр-тест.</h1>
 		{% elif probably_ill %}
-			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, вы имели контакт с человеком, на данный момент болеющим коронавирусом. Просим вам без одобрения начальства воздержаться от прихода на работу</h1>
+			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, вы имели контакт с человеком, на данный момент болеющим коронавирусом. Просим вам без одобрения начальства воздержаться от прихода на работу.</h1>
 		{% endif %}
 <!-- 			<div class="row row-cols-1 row-cols-sm-2">
 				<div class="container album">
@@ -27,7 +28,7 @@
 					</div>
 				</div>
 			</div> -->
-			<div class="container">
+			<div class="container" style="border-bottom: 3px solid">
 			  <div class="row row-cols-1 row-cols-sm-2">
 			    <div class="col text-center">
 			      		<h4 class="text_title">Ваши последние контакты были с данными сотрудниками:</h4>
@@ -43,11 +44,14 @@
 			  </div>
 			</div>
 	{% endif %}
-
+	
+	<br>
+	<h1 class="text-center text_title">Последние новости</h1>
+	<br>
 	{% for post in posts %}
 		<div class="text-center">
 			<div class="container">
-				<h2 class="text_title">{{ post.title }}</h2>
+				<h3 class="text_title">{{ post.title }}</h3>
 				<br>
 				{% if post.image %}
 				<img class="card-img img-fluid" src="{{ post.image.url }}" style="max-width: 800px; max-height: 500px border">

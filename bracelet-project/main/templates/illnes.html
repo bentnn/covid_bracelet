@@ -6,6 +6,20 @@
 
 {% block content %}
 <div class="container">
+	{% if not empty_ill %}
+		<p><a class="btn bg-danger text-light " href="mailto:
+			{% for user in passibly_ill %}
+				{{user.email}},
+			{% endfor %}
+			?subject=Информация с антиковидного браслета&amp;body=Здравствуйте. Вы имели контакт с человеком, у которого был обнаружен коронавирус. Просим вас избегать людных мест и, по возможности, сдать тест на наличие вируса.">Отправить уведомление заболевшим</a></p>
+	{% endif %}
+	{% if not empty_passibly_ill %}
+		<p><a class="btn bg-dark text-light " href="mailto:
+			{% for user in passibly_ill %}
+				{{user.email}},
+			{% endfor %}
+			?subject=Информация с антиковидного браслета&amp;body=Здравствуйте. Вы имели контакт с человеком, у которого был обнаружен коронавирус. Просим вас избегать людных мест и, по возможности, сдать тест на наличие вируса.">Отправить уведомление возможно заболевшим</a></p>
+	{% endif %}
 	<h1 class="text_title">Заболевшие сотрудники</h1>
 	<br>
 	{% if empty_ill %}
@@ -13,7 +27,7 @@
 	{% else %}
 
 		{% for user in ill_users %}
-		<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
+		<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.last_name }} {{ user.first_name }} : {{ user.username }}</a></p>
 		{% endfor %}
 		<br><br>
 		<h2 class="text_title">Возможно заболевшие сотрудники</h2>
@@ -22,14 +36,8 @@
 			<p class="regular_text">Возможно заболевших сотрудников не найдено</p>
 		{% else %}
 			{% for user in passibly_ill %}
-			<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
+			<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.last_name }} {{ user.first_name }} : {{ user.username }}</a></p>
 			{% endfor %}
-			<br>
-			<p><a class="btn bg-danger text-light regular_text" href="mailto:
-				{% for user in passibly_ill %}
-					{{user.email}},
-				{% endfor %}
-				?subject=Информация с антиковидного браслета&amp;body=Здравствуйте. Вы имели контакт с человеком, у которого был обнаружен коронавирус. Просим вас избегать людных мест и, по возможности, сдать тест на наличие вируса.">Оповестить возможно заболевших</a></p>
 		{% endif %}
 	{% endif %}
 </div>

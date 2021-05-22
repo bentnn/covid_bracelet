@@ -15,7 +15,7 @@
 		<h3>Сотрудники в базе данных отсутсвуют</h3>
 	{% else %}
 		{% for user in workers %}
-				<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.username }} : {{ user.last_name }} {{ user.first_name }}</a></p>
+				<p class="regular_text"><a class="link-dark" href="{% url 'info_about_person' user.id %}">{{ user.last_name }} {{ user.first_name }} : {{ user.username }}</a></p>
 		{% endfor %}
 
 	{% endif %}

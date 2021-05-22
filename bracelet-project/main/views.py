@@ -5,7 +5,10 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib import messages
 from .models import Contact, Post
 from django.core.files.storage import FileSystemStorage
-
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 
 # Create your views here.
 
@@ -21,7 +24,7 @@ def home(request):
 
 	posts = Post.objects.all()
 	if request.user.is_staff:
-		render(request, 'home.html', {'posts' : posts})
+		render(request, 'home.html', {'posts' : posts[:5]})
 
 	our_user = request.user
 	contact_list =  Contact.objects.all()
@@ -52,7 +55,7 @@ def home(request):
 			contacts_with.append(contact.second_user)
 		else:
 			contacts_with.append(contact.first_user)
-	return render(request, 'home.html', {'posts' : posts, 'ill' : request.user.groups.filter(name='ill').exists(),
+	return render(request, 'home.html', {'posts' : posts[:5], 'ill' : request.user.groups.filter(name='ill').exists(),
 					'probably_ill' : probably_ill, 'contacts_with' : contacts_with, 'all' : all, 'ill_size' : len(ill_users)})
 	
 
@@ -189,6 +192,26 @@ def workersView(request):
 	
 	return render(request, 'workers.html', {'workers' : workers, 'empty' : len(workers) == 0})
 
+def notify_user(user):
+	addr_from = "anticovidbracelet@yandex.com"
+	addr_to   = user.email
+	password  = "bisxbtrjucwaebfi"
+
+	msg = MIMEMultipart()
+	msg['From']    = addr_from
+	msg['To']      = addr_to
+	msg['Subject'] = 'Информация от антиковидного браслета'
+
+	text = "Здравствуйте, " + user.first_name + ".\nПо нашим данным, за последние две недели у вас был контакт с человеком, заболевшим коронавирусной инфекцией. Просим вас сдать пцр-тест на covid 19 и не приходить на работу до получения отрицательного результата."
+	msg.attach(MIMEText(text, 'plain'))
+
+	server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
+	server.login(addr_from, password)
+	server.send_message(msg)
+	msg.attach(MIMEText("body", 'plain'))
+	server.send_message(msg)
+	server.quit()
+
 def change_the_health_status(request, user_id):
 	if not can_i_let_him_in(request):
 		return redirect('login')
@@ -201,16 +224,32 @@ def change_the_health_status(request, user_id):
 		user.groups.remove(group)
 	else:
 		user.groups.add(group)
+		contact_list =  Contact.objects.all()
+		our_contact_list = []
+		for contact in contact_list:
+			if contact.first_user.username == user.username or contact.second_user.username == user.username:
+				our_contact_list.append(contact)
+		for contact in our_contact_list:
+			if contact.first_user == user and not contact.second_user.groups.filter(name='ill').exists():
+				notify_user(contact.second_user)
+			elif contact.second_user == user and not contact.first_user.groups.filter(name='ill').exists():
+				notify_user(contact.first_user)
 
 	return redirect('info_about_person', user_id)
 
 def take_contacts(request):
 	if request.method == 'POST' and request.FILES['myfile']:
-		myfile = request.FILES['myfile']
-		fs = FileSystemStorage()
-		filename = fs.save(myfile.name, myfile)
-		uploaded_file_url = fs.url(filename)
+		# myfile = request.FILES['myfile']
+		# f = request.FILES.get('myfile').open()
+		first_part = request.FILES["myfile"].read()
+		first_part = first_part.decode("utf-8") 
+		# first_part = ''
+		# for line in f:
+		# 	first_part += line
+		# fs = FileSystemStorage()
+		# filename = fs.save(myfile.name, myfile)
+		# uploaded_file_url = fs.url(filename)
 		return render(request, 'take_file.html', {
-			'uploaded_file_url': uploaded_file_url
+			'first_part': first_part
 		})
 	return render(request, 'take_file.html')

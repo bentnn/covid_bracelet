@@ -33,7 +33,8 @@
 		<p class="fw-bold regular_text">Электронная почта:</p>
 		<p class="regular_text">
 		{% if user.email %}
-			{{ user.email }}
+			<p><a class="regular_text text-dark" href="mailto:{{user.email}},
+			?subject=Информация с антиковидного браслета&amp;body=Здравствуйте, {{ user.first_name }}.">{{ user.email }}</a></p>
 		{% else %}
 			-
 		{% endif %}
@@ -55,12 +56,18 @@
 					<h4 class="fw-bold regular_text">
 						{% if user.id != contact.first_user.id %}
 						<a class="link-dark" href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a>
+						{% if contact.first_user.groups.all.0.name == 'ill' %}
+							<span class="material-icons text-danger">coronavirus</span>
+						{% endif %}
 						{% else %}
 						{{contact.first_user.last_name}}  {{contact.first_user.first_name}}
 						{% endif %}
 						 - 
 						{% if user.id != contact.second_user.id %}
 						<a class="link-dark" href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a>
+						{% if contact.second_user.groups.all.0.name == 'ill' %}
+							<span class="material-icons text-danger">coronavirus</span>
+						{% endif %}
 						{% else %}
 						{{contact.second_user.last_name}} {{contact.second_user.first_name}}
 						{% endif %}
