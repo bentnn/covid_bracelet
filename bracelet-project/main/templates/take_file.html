@@ -6,14 +6,19 @@
 	<div class="container">
 	  <form method="post" enctype="multipart/form-data">
 	    {% csrf_token %}
-	    <input class="" type="file" name="myfile">
-	    <button class="btn btn-outline-secondary" type="submit">Upload</button>
+<!-- 	    <input class="" type="file" name="myfile">
+ -->	    
+ 			<div class="mb-3">
+			  <input class="form-control" type="file" id="formFile" name="myfile">
+			  <br>
+			  <button class="btn btn-outline-secondary" type="submit">Upload</button>
+			</div>
 	  </form>
 
 
-	  {% if first_part %}
+	  {% if messege %}
 	<!--     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p> -->
-		<p>{{ first_part }}</p>
+		<p>{{ messege }}</p>
 	  {% endif %}
   </div>
 {% endblock %}

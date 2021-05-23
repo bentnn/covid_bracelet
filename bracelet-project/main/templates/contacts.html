@@ -20,6 +20,7 @@
 	</h1>
 
 		{% if request.user.is_staff %}
+			<a class="btn btn-dark" href="{% url 'take_contacts' %}">Добавить контакты</a>
 			{% if to_ill %}
 			<a class="btn btn-dark" href="{% url 'only_ill_contacts' %}">Контакты только с заболевшими</a>
 			{% else %}
@@ -57,25 +58,7 @@
 					{% endif %}
 					</th>
 				</tr>
-<!--     <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td colspan="2">Larry the Bird</td>
-      <td>@twitter</td>
-    </tr> -->
 
-<!-- 					<h4 class="fw-bold regular_text"><a class="link-dark" href="{% url 'info_about_person' contact.first_user.id %}">{{contact.first_user.last_name}}  {{contact.first_user.first_name}}</a> - <a class="link-dark" href="{% url 'info_about_person' contact.second_user.id %}">{{contact.second_user.last_name}} {{contact.second_user.first_name}}</a></h4> -->
 				{% else %}
 				<tr>
 					<th>{{contact.date}}</th>

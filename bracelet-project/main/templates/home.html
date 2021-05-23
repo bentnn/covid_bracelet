@@ -11,7 +11,7 @@
 		{% if ill %}
 			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, сейчас вы болеете коронавирусом. Просим вас не приходить на работу некоторое время, а перед возвращением сдать пцр-тест.</h1>
 		{% elif probably_ill %}
-			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, вы имели контакт с человеком, на данный момент болеющим коронавирусом. Просим вам без одобрения начальства воздержаться от прихода на работу.</h1>
+			<h1 class="text-danger regular_text text-center" style="border: 3px solid red">По нашим данным, вы имели контакт с человеком, на данный момент болеющим коронавирусом. Просим вас сдать тест на наличие вируса, а также не приходить на работу до получения соответствующего разрешения.</h1>
 		{% endif %}
 <!-- 			<div class="row row-cols-1 row-cols-sm-2">
 				<div class="container album">
@@ -39,7 +39,7 @@
 			    <div class="col text-center">
 			      		<h4 class="text_title">Статистика по предприятью:</h4>
 						<p class="regular_text">Всего сотрудников: {{ all }}</p>
-						<p class="regular_text">Болеющих сотрудников сотрудников: {{ ill_size }}</p>
+						<p class="regular_text">Болеющих сотрудников: {{ ill_size }}</p>
 			    </div>
 			  </div>
 			</div>

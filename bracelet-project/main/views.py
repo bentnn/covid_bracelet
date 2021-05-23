@@ -9,8 +9,14 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+import datetime
+
 
 # Create your views here.
+
+def is_contact_resent(contact):
+	compare = contact.date.date() - datetime.date.today()
+	return compare.days < 0 and compare.days > -15
 
 def can_i_let_him_in(request):
 	return (request.user.is_authenticated and not request.user.is_superuser)
@@ -50,10 +56,10 @@ def home(request):
 			probably_ill = True
 			break
 	contacts_with = []
-	for contact in our_contact_list[0:3]:
-		if contact.first_user == our_user:
+	for contact in our_contact_list:
+		if contact.first_user == our_user and not contacts_with.count(contact.second_user):
 			contacts_with.append(contact.second_user)
-		else:
+		elif contact.second_user == our_user and not contacts_with.count(contact.first_user):
 			contacts_with.append(contact.first_user)
 	return render(request, 'home.html', {'posts' : posts[:5], 'ill' : request.user.groups.filter(name='ill').exists(),
 					'probably_ill' : probably_ill, 'contacts_with' : contacts_with, 'all' : all, 'ill_size' : len(ill_users)})
@@ -80,25 +86,18 @@ def signoutView(request):
 def change_password(request):
 	if not can_i_let_him_in(request):
 		return redirect('login')
-
+	messege = None
 	if request.method == 'POST':
 		form = PasswordChangeForm(request.user, request.POST)
 		if form.is_valid():
 			user = form.save()
 			update_session_auth_hash(request, user)  # Important!
-			messages.success(request, 'Your password was successfully updated!')
-			return redirect('successfull_password_change')
+			messege = "Ваш пароль был успешно изменен"
 		else:
-			messages.error(request, 'Please correct the error below.')
+			messege = "Форма смены пароля невалидна"
 	else:
 		form = PasswordChangeForm(request.user)
-	return render(request, 'change_password.html', {'form': form})
-
-def successfull_password_change(request):
-	if not can_i_let_him_in(request):
-		return redirect('login')
-
-	return render(request, 'successfull_password_change.html')
+	return render(request, 'change_password.html', {'form': form, 'messege' : messege})
 
 def account(request):
 	if not can_i_let_him_in(request):
@@ -134,13 +133,23 @@ def only_ill_contacts(request):
 			only_ill_contacts.append(contact)
 	return render(request, 'contacts.html', {'contacts' : only_ill_contacts, 'empty' : len(only_ill_contacts) == 0, 'to_ill' : False})
 
-def info_about_person(request, user_id):
+def info_about_person(request, user_id, messege=None):
 	if not can_i_let_him_in(request):
 		return redirect('login')
 	if not request.user.is_staff:
 		return forbidden_page(request)
 
+	messege = None
 	user = User.objects.get(id=user_id)
+	if request.method == 'POST':
+		res = change_the_health_status(request, user_id)
+		if user.groups.filter(name='ill').exists():
+			if res == 0:
+				messege = "Пользователи, контактировавшие с данным сотрудником, оповещены"
+			else:
+				messege = "Произошла ошибка при оповещении сотрудников, попробуйте еще раз"
+				user.groups.remove(Group.objects.get(name='ill'))
+	
 
 	contact_list =  Contact.objects.all()
 	our_contact_list = []
@@ -148,7 +157,7 @@ def info_about_person(request, user_id):
 		if contact.first_user.username == user.username or contact.second_user.username == user.username:
 			our_contact_list.append(contact)
 	return render(request, 'about_person.html', {'user' : user, 'contacts' : our_contact_list,
-		'empty' : len(our_contact_list) == 0, 'ill' : user.groups.filter(name='ill').exists()})
+		'empty' : len(our_contact_list) == 0, 'ill' : user.groups.filter(name='ill').exists(), 'messege' : messege})
 
 def illnes(request):
 	if not can_i_let_him_in(request):
@@ -163,7 +172,7 @@ def illnes(request):
 			ill_users.append(user)
 	passibly_ill = []
 	if len(ill_users) != 0:
-		contact_list =  Contact.objects.all()
+		contact_list = Contact.objects.all()
 		for contact in contact_list:
 			if ill_users.count(contact.first_user):
 				if ill_users.count(contact.second_user) == 0 and passibly_ill.count(contact.second_user) == 0:
@@ -192,25 +201,26 @@ def workersView(request):
 	
 	return render(request, 'workers.html', {'workers' : workers, 'empty' : len(workers) == 0})
 
-def notify_user(user):
+def notify_user(users):
 	addr_from = "anticovidbracelet@yandex.com"
-	addr_to   = user.email
 	password  = "bisxbtrjucwaebfi"
 
+	recipients = [user.email for user in users]
 	msg = MIMEMultipart()
 	msg['From']    = addr_from
-	msg['To']      = addr_to
+	msg['To']      = ", ".join(recipients)
 	msg['Subject'] = 'Информация от антиковидного браслета'
 
-	text = "Здравствуйте, " + user.first_name + ".\nПо нашим данным, за последние две недели у вас был контакт с человеком, заболевшим коронавирусной инфекцией. Просим вас сдать пцр-тест на covid 19 и не приходить на работу до получения отрицательного результата."
+	text = "Здравствуйте.\nПо нашим данным, за последние две недели у вас был контакт с человеком, заболевшим коронавирусной инфекцией. Просим вас сдать пцр-тест на covid 19 и не приходить на работу до получения отрицательного результата."
 	msg.attach(MIMEText(text, 'plain'))
-
-	server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
-	server.login(addr_from, password)
-	server.send_message(msg)
-	msg.attach(MIMEText("body", 'plain'))
-	server.send_message(msg)
-	server.quit()
+	try:
+		server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
+		server.login(addr_from, password)
+		server.sendmail(addr_from, recipients, msg.as_string())
+		server.quit()
+		return 0
+	except:
+		return 1
 
 def change_the_health_status(request, user_id):
 	if not can_i_let_him_in(request):
@@ -218,10 +228,12 @@ def change_the_health_status(request, user_id):
 	if not request.user.is_staff:
 		return forbidden_page(request)
 
+	# messege = None
 	group = Group.objects.get(name='ill')
 	user = User.objects.get(id=user_id)
 	if user.groups.filter(name='ill').exists():
 		user.groups.remove(group)
+		return 0
 	else:
 		user.groups.add(group)
 		contact_list =  Contact.objects.all()
@@ -229,20 +241,99 @@ def change_the_health_status(request, user_id):
 		for contact in contact_list:
 			if contact.first_user.username == user.username or contact.second_user.username == user.username:
 				our_contact_list.append(contact)
+		send_to = []
 		for contact in our_contact_list:
-			if contact.first_user == user and not contact.second_user.groups.filter(name='ill').exists():
-				notify_user(contact.second_user)
-			elif contact.second_user == user and not contact.first_user.groups.filter(name='ill').exists():
-				notify_user(contact.first_user)
+			if is_contact_resent(contact) and contact.first_user == user and not contact.second_user.groups.filter(name='ill').exists() and not send_to.count(contact.second_user):
+				# notify_user(contact.second_user)
+				send_to.append(contact.second_user)
+			elif is_contact_resent(contact) and contact.second_user == user and not contact.first_user.groups.filter(name='ill').exists() and not send_to.count(contact.first_user):
+				# notify_user(contact.first_user)
+				send_to.append(contact.first_user)
+		return notify_user(send_to)
+		# messege = "Пользователи, контактировавшие с данным сотрудником, оповещены"
 
-	return redirect('info_about_person', user_id)
+	# return redirect('info_about_person', user_id)
+	# redirect('info_about_person', user_id)
+	# return info_about_person(request, user_id, messege)
+
+def check_file(array):
+	correct = []
+	for i in range(len(array)):
+		item = array[i]
+		if not item.isspace() and item != '':
+			includes = item.split(' ')
+			if not User.objects.filter(username=includes[0]).exists():
+				return "Неопознанный пользователь '" + includes[0] + "' в строке '" + item + "' [" + str(i + 1) + "]"
+			if not User.objects.filter(username=includes[1]).exists():
+				return "Неопознанный пользователь '" + includes[1] + "' в строке '" + item + "' [" + str(i + 1) + "]"
+			if len(includes[2]) != 10:
+				return "Неверный формат даты в строке '" + item + "' [" + str(i + 1) + "]"
+			if not (includes[2][2] == '/' and includes[2][5] == '/' and includes[2][0:2].isdigit() and includes[2][3:5].isdigit() and includes[2][6:].isdigit()):
+				return "Неверный формат даты в строке '" + item + "' [" + str(i + 1) + "]"
+
+			d = int(includes[2][0:2])
+			m = int(includes[2][3:5])
+			y = int(includes[2][6:])
+			try:
+				our_date = datetime.date(y, m, d)
+			except:
+				return "Некорректная дата в строке '" + item + "' [" + str(i + 1) + "]"
+			compare = our_date - datetime.date.today()
+			if compare.days > 0:
+				return "Дата в данной строке еще не наступила: '" + item + "' [" + str(i + 1) + "]"
+			if compare.days < -60:
+				return "В данной строке указана дата, которой больше 2 месяцев: '" + item + "' [" + str(i + 1) + "]"
+
+			if len(includes[3]) != 5 and len(includes[3]) != 6:
+				return "Неверный формат времени в строке '" + item + "' [" + str(i + 1) + "]"
+			if not (includes[3][2] == ':' and includes[3][0:2].isdigit() and includes[3][3:5].isdigit()):
+				return "Неверный формат времени в строке '" + item + "' [" + str(i + 1) + "]"
+
+			h = int(includes[3][0:2])
+			mi = int(includes[3][3:5])
+			try:
+				our_time = datetime.time(h, mi)
+			except:
+				return "Некорректное время в строке '" + item + "' [" + str(i + 1) + "]"
+			if our_date == datetime.date.today():
+				time_now = datetime.datetime.now().time()
+				if (time_now.hour * 60 + time_now.minute) < (our_time.hour * 60 + our_time.minute):
+					return "В данной строке указана сегодняшняя дата, но еще не наступившее время: '" + item + "' [" + str(i + 1) + "]"
+			correct.append(item)
+	return correct
+
+# def create_new_contacts(array):
+# 	contacts_array = []
+# 	for item in array
+
+
+
 
 def take_contacts(request):
-	if request.method == 'POST' and request.FILES['myfile']:
-		# myfile = request.FILES['myfile']
-		# f = request.FILES.get('myfile').open()
-		first_part = request.FILES["myfile"].read()
-		first_part = first_part.decode("utf-8") 
+	if request.method == 'POST':
+		if request.FILES.get('myfile') == None:
+			return render(request, 'take_file.html', {
+			'messege': "Необходимо загрузить файл"})
+		if str(request.FILES.get('myfile'))[-4:] != '.txt':
+			return render(request, 'take_file.html', {
+			'messege': "Неверный формат файла '" + str(request.FILES.get('myfile')) + "'"})
+
+		text = request.FILES["myfile"].read()
+		text = text.decode("utf-8")
+		text = text.split('\n')
+		res = check_file(text)
+		if type(res) == str:
+			return render(request, 'take_file.html', {
+			'messege': res}) 
+		else:
+			text = len(res)
+
+		# c = Contact.objects.create(first_user = "irina_fedotova", second_user = "ivan_ivanov")
+		# user1 = get_object_or_404(User, username="irina_fedotova")
+		# user2 = get_object_or_404(User, username="ivan_ivanov")
+		# c = Contact.objects.create(first_user=user1, second_user=user2, date=datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M"))
+		# c.save()
+		# c.save()
 		# first_part = ''
 		# for line in f:
 		# 	first_part += line
@@ -250,6 +341,4 @@ def take_contacts(request):
 		# filename = fs.save(myfile.name, myfile)
 		# uploaded_file_url = fs.url(filename)
 		return render(request, 'take_file.html', {
-			'first_part': first_part
-		})
-	return render(request, 'take_file.html')
+			'messege': text})

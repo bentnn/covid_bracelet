@@ -45,7 +45,15 @@
 		{% else %}
 			<p class="text-success regular_text">Здоров</p>
 		{% endif %}
-		<p><a class="btn btn-dark regular_text" href="{% url 'change_status' user.id %}">Изменить статус здоровья</a></p>
+	  <form method="POST">
+	    {% csrf_token %}
+	    <!-- <input class="" type="file" name="myfile"> -->
+	    <button class="btn btn-dark regular_text" type="submit">Изменить статус здоровья</button>
+	  </form>
+
+	  	{% if messege %}
+	  	<p>{{ messege }}</p>
+	  	{% endif %}
 
 		<br><br>
 		<h2 class="text_title">Контакты пользователя</h2>
