@@ -12,5 +12,7 @@ urlpatterns = [
 	path('illnes', views.illnes, name='illnes'),
 	path('account/change_password', views.change_password, name='change_password'),
 	path('workers', views.workersView, name='workers'),
-	path('take_contacts', views.take_contacts, name='take_contacts'),
+	path('contacts/take_contacts', views.take_contacts, name='take_contacts'),
+	path('contacts/delete_old_contacts', views.delete_old_contacts, name='delete_old_contacts'),
+	path('contacts/download', views.contacts_download, name='contacts_download'),
 ]

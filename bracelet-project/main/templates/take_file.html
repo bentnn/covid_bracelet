@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
 
-{% load static %}
+{% block title %}
+	Take contacts
+{% endblock %}
 
 {% block content %}
 	<div class="container">
+		<h1 class="text_title">Страница добавления новых контактов</h1>
+		<br>
+		<p class="regular_text">Для добавления новых контактов загрузите, пожалуйста, файл в формате .txt</p>
+		<p class="regular_text">Контакты должны быть разбиты построчно, то есть в одной строке файла должна содержаться информация об одном контакте</p>
+		<p class="regular_text">Каждая строка файла должна быть в формате 'ИмяПользователя1 ИмяПользователя2 дд/мм/гггг чч:мм'</p>
+		<p class="regular_text">Пример: 'user1 user2 01/02/2021 12:30'</p>
+		<p class="regular_text">Контакты должны быть строго в этом формате. Даты, которым больше 2 месяцев, либо даты, которые еще не наступили, вызовут ошибку, то есть контакты из файла добавлены не будут. Если указана сегодняшняя дата, то время не должно позже, чем текущее. Это также вызовет ошибку. </p>
+		<br>
 	  <form method="post" enctype="multipart/form-data">
 	    {% csrf_token %}
 <!-- 	    <input class="" type="file" name="myfile">
@@ -18,7 +28,7 @@
 
 	  {% if messege %}
 	<!--     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p> -->
-		<p>{{ messege }}</p>
+		<p class="regular_text fw-bold">{{ messege }}</p>
 	  {% endif %}
   </div>
 {% endblock %}

@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 import datetime
+from django.core.files import File
 
 
 # Create your views here.
@@ -110,7 +111,7 @@ def contacts(request):
 		return redirect('login')
 
 	user = request.user
-	contact_list =  Contact.objects.all()
+	contact_list = Contact.objects.all()
 	if user.is_staff:
 		return render(request, 'contacts.html', {'contacts' : contact_list, 'empty' : len(contact_list) == 0, 'to_ill' : True})
 	our_contact_list = []
@@ -299,17 +300,49 @@ def check_file(array):
 				time_now = datetime.datetime.now().time()
 				if (time_now.hour * 60 + time_now.minute) < (our_time.hour * 60 + our_time.minute):
 					return "В данной строке указана сегодняшняя дата, но еще не наступившее время: '" + item + "' [" + str(i + 1) + "]"
-			correct.append(item)
+			user1 = get_object_or_404(User, username=includes[0])
+			user2 = get_object_or_404(User, username=includes[1])
+			# c = Contact.objects.create(first_user=user1, second_user=user2, date=datetime.datetime(y, m, d, h, m))
+			data = datetime.datetime(y, m, d, h, mi)
+
+			correct.append([user1, user2, data])
 	return correct
 
-# def create_new_contacts(array):
-# 	contacts_array = []
-# 	for item in array
-
-
+def create_new_contacts(array):
+	contacts_array = []
+	array.sort(key=lambda x: x[2])
+	for i in range(len(array)):
+		ok = True
+		for j in contacts_array:
+			if (j[0] == array[i][0] and j[1] == array[i][1]) or (j[0] == array[i][1] and j[1] == array[i][0]):
+				if j[2].date() == array[i][2].date():
+					compare = (j[2].hour * 60 + j[2].minute) - (array[i][2].hour * 60 + array[i][2].minute)
+					if compare <= 30 and compare >= -30:
+						ok = False
+		if ok:
+			contacts_array.append(array[i])
+	old_contacts = Contact.objects.all()
+	will_be_saved = []
+	for i in contacts_array:
+		ok = True
+		for j in old_contacts:
+			if (j.first_user == i[0] and j.second_user == i[1]) or (j.first_user == i[1] and j.second_user == i[0]):
+				if j.date.date() == i[2].date():
+					compare = (j.date.hour * 60 + j.date.minute) - (i[2].hour * 60 + i[2].minute)
+					if compare <= 30 and compare >= -30:
+						ok = False
+		if ok:
+			will_be_saved.append(i)
+	print(len(will_be_saved))
+	return will_be_saved
 
 
 def take_contacts(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
 	if request.method == 'POST':
 		if request.FILES.get('myfile') == None:
 			return render(request, 'take_file.html', {
@@ -324,21 +357,78 @@ def take_contacts(request):
 		res = check_file(text)
 		if type(res) == str:
 			return render(request, 'take_file.html', {
-			'messege': res}) 
-		else:
-			text = len(res)
+			'messege': 'ОШИБКА: ' + res}) 
+		res = create_new_contacts(res)
+		if len(res) == 0:
+			return render(request, 'take_file.html', {
+		'messege': 'Все контакты из данного файла дублируются с контактами, уже имеющимися в базе данных. Новых контактов не добавлено'})
 
-		# c = Contact.objects.create(first_user = "irina_fedotova", second_user = "ivan_ivanov")
-		# user1 = get_object_or_404(User, username="irina_fedotova")
-		# user2 = get_object_or_404(User, username="ivan_ivanov")
-		# c = Contact.objects.create(first_user=user1, second_user=user2, date=datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M"))
-		# c.save()
-		# c.save()
-		# first_part = ''
-		# for line in f:
-		# 	first_part += line
-		# fs = FileSystemStorage()
-		# filename = fs.save(myfile.name, myfile)
-		# uploaded_file_url = fs.url(filename)
+		for item in res:
+			c = Contact.objects.create(first_user=item[0], second_user=item[1], date=item[2])
+		text = "Успешно! Колличество добавленных контактов: " + str(len(res))
+
 		return render(request, 'take_file.html', {
 			'messege': text})
+	return render(request, 'take_file.html')
+
+
+def delete_old_contacts(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
+	messege = None
+	if request.method == 'POST':
+		start = None
+		contacts_list = Contact.objects.all()
+		for i in range(len(contacts_list)):
+			if not is_contact_resent(contacts_list[i]):
+				start = i
+				break
+		if start != None:
+			count = 0
+			for i in range(start, len(contacts_list)):
+				contacts_list[i].delete()
+				count += 1
+		if start != None and count != 0:
+			messege = "Успешно! Колличество удаленных контактов: " + str(count)
+		else:
+			messege = "Подходящих контактов не найдено. Ни один контакт не был удален."
+
+	return render(request, 'delete_old_contacts.html', {
+			'messege': messege})
+
+from django.http import HttpResponse, FileResponse
+from django.core.files.base import ContentFile
+
+
+def contacts_download(request):
+	if not can_i_let_him_in(request):
+		return redirect('login')
+	if not request.user.is_staff:
+		return forbidden_page(request)
+
+	contacts_list = Contact.objects.all()
+	str_for_user = ''
+	for contact in contacts_list:
+		str_for_user += contact.first_user.username + ' ' + contact.second_user.username + ' '
+		if contact.date.date().day < 10:
+			str_for_user += '0'
+		str_for_user += str(contact.date.date().day) + '/'
+		if contact.date.date().month < 10:
+			str_for_user += '0'
+		str_for_user += str(contact.date.date().month) + '/' + str(contact.date.date().year) + ' '
+		if contact.date.time().hour < 10:
+			str_for_user += '0'
+		str_for_user += str(contact.date.time().hour) + ':'
+		if contact.date.time().minute < 10:
+			str_for_user += '0'
+		str_for_user += str(contact.date.time().minute) + '\n'
+
+
+	file_to_send = ContentFile(str_for_user)
+	response = HttpResponse(file_to_send,'application/x-gzip')
+	response['Content-Length'] = file_to_send.size    
+	response['Content-Disposition'] = 'attachment; filename="Contacts.txt"'
+	return response 

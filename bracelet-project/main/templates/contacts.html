@@ -21,6 +21,9 @@
 
 		{% if request.user.is_staff %}
 			<a class="btn btn-dark" href="{% url 'take_contacts' %}">Добавить контакты</a>
+			<a class="btn btn-dark" href="{% url 'delete_old_contacts' %}">Удалить старые контакты</a>
+			<a class="btn btn-dark" href="{% url 'contacts_download' %}">Скачать контакты</a>
+			
 			{% if to_ill %}
 			<a class="btn btn-dark" href="{% url 'only_ill_contacts' %}">Контакты только с заболевшими</a>
 			{% else %}

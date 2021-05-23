@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Delete contacts
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<h1 class="text_title">Страница удаления старых контактов</h1>
+		<br>
+		<p class="regular_text">Для удаления контактов, которые были совершены больше двух недель назад, нажмите на кнопку ниже.</p>
+		<p class="regular_text">Отменить данное действие будет невозможно.</p>
+
+		<br>
+	  <form method="post" enctype="multipart/form-data">
+	    {% csrf_token %}
+ 			<div class="mb-3">
+			  <button class="btn btn-dark" type="submit">Удалить старые контакты</button>
+			</div>
+	  </form>
+
+
+	  {% if messege %}
+	<!--     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p> -->
+		<p class="regular_text fw-bold">{{ messege }}</p>
+	  {% endif %}
+  </div>
+{% endblock %}
