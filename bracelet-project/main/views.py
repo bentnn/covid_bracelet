@@ -263,6 +263,8 @@ def check_file(array):
 		item = array[i]
 		if not item.isspace() and item != '':
 			includes = item.split(' ')
+			if includes[0] == includes[1]:
+				return "В данной строке указаны два одинаковых имени пользователя '" + item + "' [" + str(i + 1) + "]"
 			if not User.objects.filter(username=includes[0]).exists():
 				return "Неопознанный пользователь '" + includes[0] + "' в строке '" + item + "' [" + str(i + 1) + "]"
 			if not User.objects.filter(username=includes[1]).exists():
@@ -302,6 +304,8 @@ def check_file(array):
 					return "В данной строке указана сегодняшняя дата, но еще не наступившее время: '" + item + "' [" + str(i + 1) + "]"
 			user1 = get_object_or_404(User, username=includes[0])
 			user2 = get_object_or_404(User, username=includes[1])
+			if user1.is_staff or user1.is_superuser or user2.is_staff or user2.is_superuser:
+				return "В данной строке один либо оба пользователя обладают правами наблюдателя или суперпользователя: '" + item + "' [" + str(i + 1) + "]"
 			# c = Contact.objects.create(first_user=user1, second_user=user2, date=datetime.datetime(y, m, d, h, m))
 			data = datetime.datetime(y, m, d, h, mi)
 
@@ -361,10 +365,10 @@ def take_contacts(request):
 		res = create_new_contacts(res)
 		if len(res) == 0:
 			return render(request, 'take_file.html', {
-		'messege': 'Все контакты из данного файла дублируются с контактами, уже имеющимися в базе данных. Новых контактов не добавлено'})
+		'messege': 'Все контакты из данного файла дублируются с контактами, уже имеющимися в базе данных, либо файл пуст. Новых контактов не добавлено'})
 
 		for item in res:
-			c = Contact.objects.create(first_user=item[0], second_user=item[1], date=item[2])
+				c = Contact.objects.create(first_user=item[0], second_user=item[1], date=item[2])
 		text = "Успешно! Колличество добавленных контактов: " + str(len(res))
 
 		return render(request, 'take_file.html', {
